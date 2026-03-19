@@ -1,0 +1,46 @@
+Yes, there are several free and reliable sources to fetch FOB (Free on Board) prices for Australian Premium White (APW), Russian, Canadian, and Argentinian wheat. These sources generally provide weekly or monthly updates based on market assessments. 
+Here are the best free sources:
+1. USDA Foreign Agricultural Service (FAS) - Grain: World Markets and Trade 
+This is one of the most comprehensive free sources. It provides monthly reports featuring international daily FOB export bids for major exporting countries. 
+USDA Foreign Agricultural Service (.gov)
+USDA Foreign Agricultural Service (.gov)
+Coverage: Covers Argentina (Up River), Australia (APW), Canada (Vancouver), Russia (Black Sea), and the US.
+Data Type: USD per metric ton ($/MT).
+Where to find: USDA FAS Grain Circulars 
+USDA Foreign Agricultural Service (.gov)
+USDA Foreign Agricultural Service (.gov)
+ +1
+2. Fastmarkets (Insights & Wheat Prices)
+Fastmarkets provides expert analysis, and while some data is paid, they frequently publish free articles with weekly spot market updates, including FOB prices for Russian 12.5% wheat, Canadian CWRS, and Argentinian Up River wheat. 
+Fastmarkets
+Fastmarkets
+ +3
+Coverage: Detailed FOB assessments for Russian Black Sea, Canadian Vancouver, and Argentine Up River.
+Where to find: Fastmarkets Agriculture Insights 
+Fastmarkets
+Fastmarkets
+ +3
+3. IKAR (Institute for Agricultural Market Studies) 
+IKAR is a leading Russian agricultural consultancy that frequently releases free information on Russian wheat export prices (FOB) through news agencies. 
+Business Recorder
+Business Recorder
+Coverage: Specific tracking of Russian 12.5% and 11.5% protein wheat FOB prices.
+Where to find: Business news sites like Breaker.com or Sovecon often quote them. 
+4. Commodity3.com
+This platform offers a free overview of FOB grain prices across different ports, although there might be a delay for unregistered users. 
+Coverage: Lists Argentine Up River (Sup 12.5%, Feed), Australian (APW), Russia (12.5%), and Romanian/French wheat.
+Where to find: Wheat FOB Ports A/O 
+5. Moscow Exchange (MOEX) - Wheat Indices 
+For Russian wheat, the Moscow Exchange calculates daily FOB indices based on over-the-counter (OTC) contracts. 
+Cbonds
+Cbonds
+Coverage: Novorossiysk, Tuapse, Taman, and Kavkaz ports.
+Where to find: MOEX GPI Index 
+Summary of FOB Wheat Types
+Russia: Look for "12.5% protein FOB Black Sea/Novorossiysk".
+Canada: Look for "CWRS 13.5% FOB Vancouver".
+Argentina: Look for "12.0% Up River".
+Australia: Look for "APW1 Kwinana/Newcastle". 
+USDA Foreign Agricultural Service (.gov)
+USDA Foreign Agricultural Service (.gov)
+ +3

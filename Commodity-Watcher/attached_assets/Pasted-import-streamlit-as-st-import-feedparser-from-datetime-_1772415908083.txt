@@ -1,0 +1,149 @@
+import streamlit as st
+import feedparser
+from datetime import datetime, timedelta
+
+# --- 1. CORE ENGINE (v116+ STABILITY LOCK) ---
+st.set_page_config(page_title="Agri-Intelligence Command Center", layout="wide")
+
+@st.cache_data(ttl=60) 
+def fetch_stable_news(query, time_range="d1", limit=100):
+    """Siloed Engine: Optimized for 24h-48h freshness across 28 commodities."""
+    if any(x in query for x in ["Weather", "El Nino", "Monsoon"]):
+        query += " -price -mandi -rate -trading -Pakistan -Europe"
+    try:
+        url = f"https://news.google.com/rss/search?q={query.replace(' ', '+')}&hl=en-IN&gl=IN&ceid=IN:en&tbs=qdr:{time_range}"
+        feed = feedparser.parse(url)
+        return sorted(feed.entries, key=lambda x: x.published_parsed if hasattr(x, 'published_parsed') else 0, reverse=True)[:limit]
+    except: return []
+
+def get_metadata(pub_date):
+    """v115 Breaking News Logic: 60-minute real-time trigger."""
+    diff = datetime.utcnow() - pub_date
+    minutes = diff.seconds // 60
+    if diff.days == 0 and minutes <= 60:
+        return f"🚨 BREAKING | {minutes}m ago", "breaking-badge"
+    if diff.days > 0: return f"{diff.days}d ago", "meta-badge"
+    hours = diff.seconds // 3600
+    if hours > 0: return f"{hours}h ago", "meta-badge"
+    return f"{minutes}m ago", "meta-badge"
+
+# --- 2. MASTER 28 COMMODITY ANCHOR ---
+COMMODITIES = {
+    "Wheat": "Wheat India news", 
+    "Maize": "Maize OR Corn India", 
+    "Paddy": "Paddy OR Rice India", 
+    # v125 UPGRADE: Chana surgical string updated to capture Rabi 2026 Procurement approvals
+    "Chana": '(Chana OR "Bengal Gram" OR "Gram") AND (Procurement OR "Rabi 2026" OR "PSS" OR "MSP") India -gold -silver',
+    "Palm Oil": "Palm Oil CPO India", 
+    "Potato": "Potato India", 
+    "Sugar": "Sugar India", 
+    "Ethanol / DDGS": "Ethanol OR DDGS India", 
+    "Rice bran oil": "Rice Bran Oil India", 
+    "Soyabean / Oil": "Soybean OR Soyoil India", 
+    "Sunflower oil": "Sunflower oil India", 
+    "Cotton seed oil": "Cotton seed oil India",
+    "Cashew": "Cashew India news", 
+    "Almond": "Almond Board California India", 
+    "Raisins": "Raisins OR Grapes India", 
+    "Oats": "Oats India", 
+    "Psyllium / Isabgol": "Psyllium OR Isabgol India",
+    "Milk / Dairy": "Milk OR Dairy India", 
+    "Cocoa": "Cocoa price India", 
+    "Chilli powder": "Chilli price India",
+    "Turmeric": "Turmeric price India", 
+    "Black pepper": "Black pepper India", 
+    "Cardamom": "Cardamom India",
+    "Cabbage / Carrot": "Cabbage OR Carrot India", 
+    "Ring beans": "Ring bean India", 
+    "Onion": "Onion price India",
+    "Potato (Mandi)": "Potato mandi India", 
+    "Groundnut": "Groundnut OR Peanut India"
+}
+
+# --- 3. EXECUTIVE THEME ---
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700&display=swap');
+    html, body, [class*="css"], .stMarkdown, p, div, h1, h2, h3, h4, h5, h6 { font-family: 'EB Garamond', serif !important; }
+    .stApp { background-color: #0a0e1a; color: #ffffff; }
+    .bento-card { background-color: #16213e; border-radius: 12px; padding: 15px; border: 1px solid #1f2937; margin-bottom: 12px; }
+    .headline-link { text-decoration: none; color: #ffffff !important; font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+    .meta-badge { background-color: #0f3460; color: #ff9d5c; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+    .breaking-badge { background-color: #780000; color: #ffffff; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 900; border: 1px solid #ff4b4b; }
+</style>
+""", unsafe_allow_html=True)
+
+# --- 4. HEADER ---
+ist_now = datetime.now() + timedelta(hours=5, minutes=30)
+col_title, col_status = st.columns([3, 1])
+with col_title:
+    st.markdown(f"<h1>🌾 Agri-Intelligence Command Center</h1>", unsafe_allow_html=True)
+with col_status:
+    st.markdown(f"<div style='text-align:right;'><b>Sync:</b> {ist_now.strftime('%I:%M:%S %p IST')}</div>", unsafe_allow_html=True)
+    if st.button("🔄 Refresh All Tabs", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
+
+if 'global_summary' not in st.session_state: st.session_state.global_summary = []
+
+t1, t2, t3, t4 = st.tabs([
+    "🏛️ Commodity Pulse", "📅 48hr Summary", "🌡️ Weather Intel", "⚖️ Policy Alert"
+])
+
+# (Pulse, Summary, Weather and Policy tab rendering remain identical to v124 to ensure no other output is impacted)
+with t1:
+    keys = list(COMMODITIES.keys())
+    for i in range(0, len(keys), 4):
+        cols = st.columns(4)
+        for j in range(4):
+            if i+j < len(keys):
+                name = keys[i+j]
+                with cols[j]:
+                    st.markdown(f"<h4>{name}</h4>", unsafe_allow_html=True)
+                    # Chana box now pulls the procurement and Rabi specific news heads
+                    news = fetch_stable_news(COMMODITIES[name], "m3", 100)
+                    with st.container(height=500):
+                        for e in news:
+                            dt = datetime(*e.published_parsed[:6])
+                            label, style = get_metadata(dt)
+                            if (datetime.utcnow() - dt) < timedelta(days=2):
+                                if e.title not in [x['title'] for x in st.session_state.global_summary]:
+                                    st.session_state.global_summary.append({"title": e.title, "link": e.link, "date": dt, "source": name})
+                            st.markdown(f"<div class='bento-card'><span class='{style}'>{label.upper()}</span><br><b><a href='{e.link}' target='_blank' class='headline-link'>{e.title}</a></b></div>", unsafe_allow_html=True)
+
+with t2:
+    st.markdown("### 📅 High-Density 48 Hr Summary")
+    cutoff = datetime.utcnow() - timedelta(days=2)
+    fresh = sorted([x for x in st.session_state.global_summary if x['date'] > cutoff], key=lambda x: x['date'], reverse=True)[:150]
+    for item in fresh:
+        label, style = get_metadata(item['date'])
+        st.markdown(f"<div class='bento-card' style='border-left: 5px solid #4dabff;'><span class='{style}'>{item['source'].upper()} | {label.upper()}</span><br><b><a href='{item['link']}' target='_blank' class='headline-link'>{item['title']}</a></b></div>", unsafe_allow_html=True)
+
+with t3:
+    st.markdown("### 🌡️ Weather Phenomena Intelligence")
+    col_l, col_r = st.columns(2)
+    p_terms = '(Weather OR Rain OR "El Nino" OR "El Niño" OR ENSO OR Monsoon OR Temperature OR "Heatwave")'
+    with col_l:
+        st.markdown("#### 🌐 National Intensity (India)")
+        for e in fetch_stable_news(f"{p_terms} AND India", "d3", 50):
+            dt = datetime(*e.published_parsed[:6])
+            label, style = get_metadata(dt)
+            st.markdown(f"<div class='bento-card' style='border-left: 5px solid #2980b9;'><span class='{style}'>INDIA | {label.upper()}</span><br><b><a href='{e.link}' target='_blank' class='headline-link'>{e.title}</a></b></div>", unsafe_allow_html=True)
+    with col_r:
+        st.markdown("#### 📍 Hyper-Local (11 States)")
+        states = '("Punjab" OR "Haryana" OR "Rajasthan" OR "Gujarat" OR "Uttar Pradesh" OR "Bihar" OR "Madhya Pradesh" OR "Karnataka" OR "Tamil Nadu" OR "Andhra Pradesh" OR "Telangana")'
+        for e in fetch_stable_news(f"{p_terms} AND {states}", "d1", 30):
+            dt = datetime(*e.published_parsed[:6])
+            label, style = get_metadata(dt)
+            st.markdown(f"<div class='bento-card' style='border-left: 5px solid #ffa500;'><span class='{style}'>STATE ALERT | {label.upper()}</span><br><b><a href='{e.link}' target='_blank' class='headline-link'>{e.title}</a></b></div>", unsafe_allow_html=True)
+
+with t4:
+    st.markdown("### ⚖️ Official Policy Intelligence (PIB)")
+    # Maintaining the surgical Rabi/Procurement expansion from v124 here
+    pib_query = """(site:pib.gov.in OR site:newsonair.gov.in) AND 
+                   (Wheat OR "Edible Oil" OR Palm OR Sugar OR Gram OR Chana OR Mustard OR Lentil OR Pulses) AND 
+                   (Export OR "Stock Limit" OR VOPPA OR MSP OR Duty OR Procurement OR "Price Support Scheme" OR "Rabi 2026")"""
+    for e in fetch_stable_news(pib_query, "m1", 100):
+        dt = datetime(*e.published_parsed[:6])
+        label, style = get_metadata(dt)
+        st.markdown(f"<div class='bento-card' style='border-left: 8px solid #d35400;'><span class='{style}'>PIB OFFICIAL | {label.upper()}</span><br><b><a href='{e.link}' target='_blank' class='headline-link'>{e.title}</a></b></div>", unsafe_allow_html=True)
